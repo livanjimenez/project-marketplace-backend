@@ -16,4 +16,7 @@ export class Listing {
 
   @Column()
   price: number;
+
+  @Column({ default: false })
+  isPublished: boolean;
 }
