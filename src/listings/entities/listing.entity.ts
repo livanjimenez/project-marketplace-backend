@@ -12,9 +12,6 @@ export class Listing {
   description: string;
 
   @Column()
-  image: string;
-
-  @Column()
   price: number;
 
   @Column({ default: false })
