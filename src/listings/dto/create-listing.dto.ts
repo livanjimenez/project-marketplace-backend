@@ -1,8 +1,25 @@
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  IsNotEmpty,
+} from 'class-validator';
+
 export class CreateListingDto {
+  @IsString()
+  @IsNotEmpty()
   title: string;
-  description: string;
+
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @IsNumber()
+  @IsNotEmpty()
   price: number;
-  image: string;
-  status: string;
-  userId: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isPublished?: boolean;
 }

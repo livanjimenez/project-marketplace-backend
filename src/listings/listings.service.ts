@@ -1,26 +1,47 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateListingDto } from './dto/create-listing.dto';
 import { UpdateListingDto } from './dto/update-listing.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Listing } from './entities/listing.entity';
 
 @Injectable()
 export class ListingsService {
-  create(createListingDto: CreateListingDto) {
-    return 'This action adds a new listing';
+  constructor(
+    @InjectRepository(Listing)
+    private listingsRepository: Repository<Listing>,
+  ) {}
+
+  create(createListingDto: CreateListingDto): Promise<Listing> {
+    const newListing = this.listingsRepository.create(createListingDto);
+    return this.listingsRepository.save(newListing);
   }
 
-  findAll() {
-    return `This action returns all listings`;
+  async findAll(): Promise<Listing[]> {
+    return this.listingsRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} listing`;
+  async findOne(id: number): Promise<Listing> {
+    const listing = await this.listingsRepository.findOne({ where: { id } });
+    if (!listing) {
+      throw new NotFoundException(`Listing with ID ${id} not found`);
+    }
+    return listing;
   }
 
-  update(id: number, updateListingDto: UpdateListingDto) {
-    return `This action updates a #${id} listing`;
+  async update(
+    id: number,
+    updateListingDto: UpdateListingDto,
+  ): Promise<Listing> {
+    const listing = await this.findOne(id);
+    const updatedListing = { ...listing, ...updateListingDto };
+    return this.listingsRepository.save(updatedListing);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} listing`;
+  async remove(id: number): Promise<void> {
+    const result = await this.listingsRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Listing with ID ${id} not found`);
+    }
   }
 }
